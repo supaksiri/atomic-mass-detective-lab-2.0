@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {ELEMENTS,ISOTOPES,MOLECULES,U_GRAMS,atomicMassGrams,relativeAtomicMassFromGrams,weightedMass,formulaMass,elementFromZ,newChallenge,answerClose} from './chemistry.mjs';
+test('C-12 exactly 12 u',()=>assert.equal(ISOTOPES['C-12'].mass,12));
+test('grams and relative mass roundtrip',()=>assert.ok(Math.abs(relativeAtomicMassFromGrams(atomicMassGrams(56))-56)<1e-9));
+test('weighted X-10 75% X-11 25%',()=>assert.equal(weightedMass([{mass:10,fraction:.75},{mass:11,fraction:.25}]),10.25));
+test('Cl isotopic mass in expected range',()=>{const x=weightedMass([{mass:ISOTOPES['Cl-35'].mass,fraction:.7578},{mass:ISOTOPES['Cl-37'].mass,fraction:.2422}]);assert.ok(x>35.44&&x<35.46)});
+test('formula mass water',()=>assert.ok(Math.abs(formulaMass(MOLECULES.H2O.formula)-18.015)<.01));
+test('formula mass CO2',()=>assert.ok(Math.abs(formulaMass(MOLECULES.CO2.formula)-44.009)<.01));
+test('ionic NaCl formula mass',()=>assert.ok(Math.abs(formulaMass(MOLECULES.NaCl.formula)-58.44)<.01));
+test('element lookup',()=>{assert.equal(elementFromZ(6),'C');assert.equal(elementFromZ(17),'Cl')});
+test('invalid weighted fractions',()=>assert.throws(()=>weightedMass([{mass:10,fraction:.2},{mass:11,fraction:.2}])));
+test('challenge all labs generate finite numeric answers',()=>{for(let lab=1;lab<=6;lab++)for(let i=0;i<4;i++){const x=newChallenge(lab,i);assert.ok(Number.isFinite(x.expected));assert.ok(x.question.length>10);assert.ok(answerClose(x.expected,x.expected));}});
